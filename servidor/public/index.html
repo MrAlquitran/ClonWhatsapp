@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat en Tiempo Real</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script defer src="js/index.js"></script>
+    <link rel="stylesheet" href="style/index.css">
+</head>
+<body>
+    <h1>PAGINA INICIAL</h1>
+    <div id="notification" class="hidden"></div>
+    <div id="user-info">
+        <img id="miFoto" src="" alt="Tu avatar">
+        <p id="miNombre"></p>
+        <p id="miStatus"></p>
+    </div>
+    
+    
+
+    <input type="file" id="fileInput">
+    <button id="uploadButton">Subir Imagen</button>
+
+    <div id="registration-container">
+        <h2>Registro</h2>
+        <form id="registration-form">
+            <label for="username">Nombre:</label>
+            <span id="username-error" style="color: white;"></span>
+            <input type="text" id="username" required><br><br>
+            
+            <label for="status">Estado:</label>
+            <input type="text" id="status" required><br><br>
+            
+            <label for="profile-pic">Foto de perfil:</label>
+            <input type="file" id="profile-pic" accept="image/*" required><br><br>
+            
+            <button id="btnRegistro">Registrarse</button>
+        </form>
+    </div>
+
+    <div id="chat-container" style="display: none;">
+    </div>
+    <div id="publico" style="display: none;">
+    </div>
+    <div id="usuarios" style="display: none;">
+    </div>
+    <div id="chat-publico">
+        <button id="enviar">Enviar</button>
+        <input type="text" id="mensaje">
+        <ul id="mensajes"></ul>
+    </div>
+</body>
+</html>
