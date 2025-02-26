@@ -14,90 +14,107 @@ let numUsuario = 0;
 
 const imgDir = path.join(__dirname, 'public', 'img');
 if (!fs.existsSync(imgDir)) {
-    fs.mkdirSync(imgDir, { recursive: true });
+  fs.mkdirSync(imgDir, { recursive: true });
 }
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '/public/index.html'));
-  });
-  app.post('/upload', (req, res) => {
-    const form = new formidable.IncomingForm({
-        uploadDir: path.join(__dirname, 'public', 'img'), 
-        keepExtensions: true, 
-    });
-
-    form.parse(req, (err, fields, files) => {
-        if (err) {
-            console.error('Error al parsear el formulario:', err);
-            res.status(500).send('Error al subir el archivo.');
-            return;
-        }
-
-        const file = files.filetoupload;
-        if (!file || !file.originalFilename) {
-            console.error('No se encontró el archivo o no tiene nombre.');
-            res.status(400).send('No se seleccionó ningún archivo.');
-            return;
-        }
-
-        const oldPath = file.filepath;
-        const newPath = path.join(__dirname, 'public', 'img', file.originalFilename);
-
-        fs.rename(oldPath, newPath, (err) => {
-            if (err) {
-                console.error('Error al mover el archivo:', err);
-                res.status(500).send('Error al mover el archivo.');
-                return;
-            }
-
-            res.status(200).send('Imagen subida exitosamente.');
-            io.emit('imagen', `/img/${file.originalFilename}`);
-        });
-    });
+  res.sendFile(path.join(__dirname, '/public/index.html'));
 });
+app.post('/upload', (req, res) => {
+  const form = new formidable.IncomingForm({
+    uploadDir: imgDir,
+    keepExtensions: true,
+  });
+
+  form.parse(req, (err, fields, files) => {
+    if (err) {
+      console.error('Error al parsear el formulario:', err);
+      return res.status(500).json({ error: 'Error al subir el archivo.' });
+    }
+
+    const file = files.file[0]; // formidable v3 almacena archivos como arrays
+    if (!file || !file.originalFilename) {
+      console.error('No se encontró el archivo o no tiene nombre.');
+      return res.status(400).json({ error: 'No se seleccionó ningún archivo.' });
+    }
+
+    let fileName = file.originalFilename;
+    let fileExtension = path.extname(fileName);
+    let baseName = path.basename(fileName, fileExtension);
+    let newPath = path.join(imgDir, fileName);
+    let counter = 1;
+
+    // Verificar si el archivo ya existe y agregar un sufijo
+    while (fs.existsSync(newPath)) {
+      fileName = `${baseName}_${counter}${fileExtension}`;
+      newPath = path.join(imgDir, fileName);
+      counter++;
+    }
+
+    fs.rename(file.filepath, newPath, (err) => {
+      if (err) {
+        console.error('Error al mover el archivo:', err);
+        return res.status(500).json({ error: 'Error al mover el archivo.' });
+      }
+
+      const imageUrl = `/img/${fileName}`;
+      console.log(`Imagen subida: ${imageUrl}`);
+
+      // Enviar la URL de la imagen al cliente
+      res.json({ imageUrl, fileName });
+      io.emit('imagen', imageUrl);
+    });
+  });
+});
+
+
+
+
+const usuariosConectados = {};
 
 io.on('connection', (socket) => {
-  numUsuario++;
-    console.log('a user connected, hay ' + numUsuario + ' usuarios');
-    socket.on('disconnect', () => {
-        numUsuario--;
-        console.log('user disconnected, hay ' + numUsuario + ' usuarios');
-    });
-    socket.on('enviar',(datos)=>{
-      console.log("Estos datos y = "+datos);
-      socket.emit('server',"HOLA DESDE SERVER")
-    })
-    // socket.on('escribiendo', (datos)=>{
-    //   console.log("escribiendo "+datos);
-    //   socket.broadcast.emit('escribiendo',datos);
-    // })
-    socket.on('mensaje', (datos)=>{
-      io.emit('mensaje',datos);
-    });
-    socket.on('imagen', (datos) =>{
-      io.emit('imagen', datos);
-    });
-    socket.on('nuevoUsuario', (nombre) => {
-      console.log('Nuevo usuario: ' + nombre);
-      io.emit('conexion', `${nombre} se ha unido a la conversación.`);
-    });
-    socket.on('desconectar', (nombre) => {
-      console.log('Usuario desconectado: ' + nombre);
-      io.emit('desconexion', `${nombre} se ha desconectado.`);
-    });
-    socket.on('registroUsuario', (usuario) => {
-        const nombreUsado = false; 
-        if (nombreUsado) {
-            socket.emit('usuarioNoDisponible', 'El nombre de usuario ya está en uso.');
-        } else {
-            socket.emit('usuarioDisponible');
-            console.log('Usuario registrado:', usuario);
-        }
-    });
+  socket.on('enviar', (datos) => {
+    console.log("Estos datos y = " + datos);
+    socket.emit('server', "HOLA DESDE SERVER");
+  });
+  socket.on('mensaje', (datos) => {
+    io.emit('mensaje', datos);
+  });
+  socket.on('imagen', (datos) => {
+    io.emit('imagen', datos);
+  });
+  socket.on('registroUsuario', (usuario) => {
+    if (usuariosConectados[usuario.username]) {
+      socket.emit('usuarioNoDisponible', 'El nombre de usuario ya está en uso.');
+    } else {
+      socket.emit('usuarioDisponible');
+      socket.username = usuario.username;
+      socket.profilePic = `/img/${usuario.profilePic}`;
+
+      usuariosConectados[socket.username] = {
+        username: usuario.username,
+        status: usuario.status,
+        profilePic: socket.profilePic
+      };
+
+      io.emit('usuariosActivos', Object.values(usuariosConectados));
+      io.emit('conexion', { username: usuario.username });
+    }
+  });
+
+  socket.on('disconnect', () => {
+    if (socket.username && usuariosConectados[socket.username]) {
+      const usuarioDesconectado = usuariosConectados[socket.username];
+      delete usuariosConectados[socket.username];
+
+      io.emit('desconexion', usuarioDesconectado);
+      io.emit('usuariosActivos', Object.values(usuariosConectados));
+    }
+  });
 });
 
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')));
 
 server.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Example app listening on port ${port}`);
+});

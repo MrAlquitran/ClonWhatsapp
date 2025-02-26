@@ -34,23 +34,32 @@ function initialize() {
                 method: 'POST',
                 body: formData
             })
-            .then(() => {
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error:', data.error);
+                    return;
+                }
+            
                 var usuario = {
                     'username': username,
                     'status': status,
-                    'profilePic': profilePic.name
+                    'profilePic': data.fileName 
                 };
-
+            
                 socket.emit('registroUsuario', usuario);
-
+            
                 socket.on('usuarioNoDisponible', (mensaje) => {
                     document.getElementById('username-error').textContent = mensaje;
                 });
-
+            
                 socket.on('usuarioDisponible', () => {
                     socket.username = username;
                     socket.status = status;
-
+                    socket.profilePic = data.imageUrl;
+            
+                    document.getElementById('miFoto').src = data.imageUrl;
+            
                     document.getElementById('miNombre').innerHTML = usuario.username;
                     document.getElementById('miStatus').innerHTML = usuario.status;
                     document.getElementById('registration-container').style.display = 'none';
@@ -61,9 +70,10 @@ function initialize() {
                 });
             })
             .catch(error => {
-                console.error(error);
+                console.error('Error al subir la imagen:', error);
                 alert('Error al subir la imagen');
             });
+            
         } else {
             alert('Por favor, complete todos los campos.');
         }
@@ -76,7 +86,8 @@ function initialize() {
         }
         socket.emit('mensaje', {
             username: socket.username,
-            mensaje: cajaTexto.value
+            mensaje: cajaTexto.value,
+            profilePic: socket.profilePic 
         });
         cajaTexto.value = ''; 
     });
@@ -90,7 +101,8 @@ function initialize() {
 
     socket.on('mensaje', (data) => {
         const objeto = document.createElement('li');
-        objeto.innerHTML = `${data.username}: ${data.mensaje}`;
+        objeto.innerHTML = `<img src="${data.profilePic}" width="30" style="border-radius: 50%;"> <strong>${data.username}:</strong> ${data.mensaje}`;
+
         mensajes.appendChild(objeto);
     });
 
@@ -105,30 +117,54 @@ function initialize() {
     }
 
     socket.on('imagen', (ruta) => {
+        console.log("Imagen recibida:", ruta);
         const img = document.createElement('img');
         img.src = ruta;
         img.style.maxWidth = '300px';
         img.style.margin = '10px';
         mensajes.appendChild(img);
     });
+    
 
+    socket.off('conexion');
     socket.on('conexion', (data) => {
-        const conex = document.createElement('li');
-        conex.innerHTML = `<em>${data.username}</em>`;
-        mensajes.appendChild(conex);
+        const mensaje = document.createElement('li');
+        mensaje.innerHTML = `<strong>${data.username} se ha conectado</strong>`;
+        mensajes.appendChild(mensaje);
     });
 
+    socket.off('desconexion');
     socket.on('desconexion', (data) => {
-        const disco = document.createElement('li');
-        disco.innerHTML = `<em>${data.username}</em>`;
-        mensajes.appendChild(disco);
+        const mensaje = document.createElement('li');
+        mensaje.innerHTML = `<em>${data.username} se ha desconectado</em>`;
+        mensajes.appendChild(mensaje);
     });
 
-    const uploadButton = document.getElementById('uploadButton');
-    const fileInput = document.getElementById('fileInput');
+    socket.off('usuariosActivos');
+    socket.on('usuariosActivos', (usuarios) => {
+        const listaUsuarios = document.getElementById('lista-usuarios');
 
-    uploadButton.addEventListener('click', () => {
-        const file = fileInput.files[0];
+        if (!listaUsuarios) return;
+
+        listaUsuarios.innerHTML = '';
+
+        usuarios.forEach(usuario => {
+            const item = document.createElement('li');
+            item.innerHTML = `
+                <img src="${usuario.profilePic}" width="30" style="border-radius: 50%;"> 
+                <strong>${usuario.username}</strong>
+            `;
+            listaUsuarios.appendChild(item);
+        });
+
+        document.getElementById('usuarios').style.display = 'block';
+    });
+    
+    const subidaBoton = document.getElementById('subidaBoton');
+    const inputArchivos = document.getElementById('inputArchivos');
+
+    subidaBoton.addEventListener('click', () => {
+        const file = inputArchivos.files[0];
         if (file) {
             const formData = new FormData();
             formData.append('file', file);

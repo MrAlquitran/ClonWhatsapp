@@ -9,18 +9,13 @@
     <link rel="stylesheet" href="style/index.css">
 </head>
 <body>
-    <h1>PAGINA INICIAL</h1>
+    <h1 id="titulo">Wassapdanger</h1>
     <div id="notification" class="hidden"></div>
     <div id="user-info">
         <img id="miFoto" src="" alt="Tu avatar">
         <p id="miNombre"></p>
         <p id="miStatus"></p>
     </div>
-    
-    
-
-    <input type="file" id="fileInput">
-    <button id="uploadButton">Subir Imagen</button>
 
     <div id="registration-container">
         <h2>Registro</h2>
@@ -44,11 +39,16 @@
     <div id="publico" style="display: none;">
     </div>
     <div id="usuarios" style="display: none;">
+        <h3>Usuarios en línea:</h3>
+        <ul id="lista-usuarios"></ul>
     </div>
     <div id="chat-publico">
+        <ul id="mensajes"></ul>
+        <input type="file" id="inputArchivos" accept="image/*">
+        <button id="subidaBoton">Subir Imagen</button>
         <button id="enviar">Enviar</button>
         <input type="text" id="mensaje">
-        <ul id="mensajes"></ul>
+        
     </div>
 </body>
 </html>
