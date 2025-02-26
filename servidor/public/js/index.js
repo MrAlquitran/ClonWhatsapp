@@ -37,7 +37,7 @@ function initialize() {
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    console.error('Error:', data.error);
+                    showNotification('Error: ' + data.error);
                     return;
                 }
             
@@ -63,19 +63,20 @@ function initialize() {
                     document.getElementById('miNombre').innerHTML = usuario.username;
                     document.getElementById('miStatus').innerHTML = usuario.status;
                     document.getElementById('registration-container').style.display = 'none';
-                    document.getElementById('chat-container').style.display = 'flex';
-                    document.getElementById('publico').style.display = 'flex';
                     document.getElementById('usuarios').style.display = 'flex';
-                    document.getElementById('chat-publico').style.backgroundColor = 'gainsboro';
+                    document.getElementById('chat-publico').style.display = 'block'; 
+                    const chatPublico = document.getElementById('chat-publico');
+                    chatPublico.style.display = 'flex';
+                    chatPublico.classList.add('visible');
                 });
             })
             .catch(error => {
-                console.error('Error al subir la imagen:', error);
-                alert('Error al subir la imagen');
+                showNotification('Error al subir la imagen: ' + error.message);
             });
             
         } else {
-            alert('Por favor, complete todos los campos.');
+            showNotification('Por favor, complete todos los campos.');
+            document.getElementById('chat-container').style.display = 'none';
         }
     }
 
@@ -104,6 +105,8 @@ function initialize() {
         objeto.innerHTML = `<img src="${data.profilePic}" width="30" style="border-radius: 50%;"> <strong>${data.username}:</strong> ${data.mensaje}`;
 
         mensajes.appendChild(objeto);
+        mensajes.scrollTop = mensajes.scrollHeight;
+
     });
 
     function showNotification(message) {
@@ -113,18 +116,33 @@ function initialize() {
 
         setTimeout(() => {
             notification.classList.remove('show');
-        }, 3000);
+        }, 2000);
     }
 
-    socket.on('imagen', (ruta) => {
-        console.log("Imagen recibida:", ruta);
-        const img = document.createElement('img');
-        img.src = ruta;
-        img.style.maxWidth = '300px';
-        img.style.margin = '10px';
-        mensajes.appendChild(img);
-    });
+    socket.off('imagen');
+    socket.on('imagen', (imageUrl) => {
+    console.log("Imagen recibida:", imageUrl);
     
+    if (!imageUrl || typeof imageUrl !== 'string') {
+        console.error("URL de imagen inválida:", imageUrl);
+        return;
+    }
+
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.style.maxWidth = '300px';
+    img.style.margin = '10px';
+
+    img.onload = () => {
+        mensajes.appendChild(img);
+        mensajes.scrollTop = mensajes.scrollHeight;
+    };
+
+    img.onerror = () => {
+        console.error("Error al cargar la imagen:", imageUrl);
+    };
+    });
+
 
     socket.off('conexion');
     socket.on('conexion', (data) => {
@@ -136,7 +154,7 @@ function initialize() {
     socket.off('desconexion');
     socket.on('desconexion', (data) => {
         const mensaje = document.createElement('li');
-        mensaje.innerHTML = `<em>${data.username} se ha desconectado</em>`;
+        mensaje.innerHTML = `<strong>${data.username} se ha desconectado</strong>`;
         mensajes.appendChild(mensaje);
     });
 
@@ -170,9 +188,17 @@ function initialize() {
             formData.append('file', file);
 
             fetch('/upload', { method: 'POST', body: formData })
-                .then(response => response.text())
-                .then(ruta => socket.emit('imagen', ruta))
-                .catch(error => console.error("Error subiendo imagen:", error));
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      showNotification("Error subiendo imagen: " + data.error);
+      return;
+    }
+
+    // Emitimos el evento al servidor con la URL completa de la imagen
+    socket.emit('imagen', data.imageUrl);
+  })
+  .catch(error => showNotification("Error subiendo imagen: " + error.message));
         } else {
             showNotification("Selecciona un archivo antes de subir.");
         }

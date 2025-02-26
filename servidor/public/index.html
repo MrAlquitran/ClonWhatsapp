@@ -10,7 +10,7 @@
 </head>
 <body>
     <h1 id="titulo">Wassapdanger</h1>
-    <div id="notification" class="hidden"></div>
+    <div id="notification" class="notification"></div>
     <div id="user-info">
         <img id="miFoto" src="" alt="Tu avatar">
         <p id="miNombre"></p>
@@ -34,21 +34,23 @@
         </form>
     </div>
 
-    <div id="chat-container" style="display: none;">
+
+    
+    <div id="chat-publico" style="display: none;">
+        <div id="usuarios" style="display: none;">
+            <h3>Usuarios en línea:</h3>
+            <ul id="lista-usuarios"></ul>
+        </div>
+        <div class="mensajes-container">
+            <ul id="mensajes"></ul>
+        </div>
+        <div class="input-container">
+            <input type="file" id="inputArchivos" accept="image/*">
+            <button id="subidaBoton">Subir Imagen</button>
+            <input type="text" id="mensaje">
+            <button id="enviar">Enviar</button>
+        </div>
     </div>
-    <div id="publico" style="display: none;">
-    </div>
-    <div id="usuarios" style="display: none;">
-        <h3>Usuarios en línea:</h3>
-        <ul id="lista-usuarios"></ul>
-    </div>
-    <div id="chat-publico">
-        <ul id="mensajes"></ul>
-        <input type="file" id="inputArchivos" accept="image/*">
-        <button id="subidaBoton">Subir Imagen</button>
-        <button id="enviar">Enviar</button>
-        <input type="text" id="mensaje">
-        
-    </div>
+    
 </body>
 </html>

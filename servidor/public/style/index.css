@@ -15,7 +15,7 @@ body {
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    width: 300px;
+    width: 450px;
     margin-bottom: 20px;
 }
 
@@ -27,7 +27,7 @@ body {
 
 #registration-form input {
     width: 100%;
-    padding: 8px;
+    padding: 4px;
     margin-bottom: 10px;
     border: 1px solid #ddd;
     border-radius: 3px;
@@ -89,30 +89,25 @@ input[type="text"], input[type="file"] {
     margin-top: 10px;
     border: 1px solid #ddd;
     border-radius: 3px;
+    bottom: 0px;
 }
 
-#notification {
+.notification {
+    display: none;
     position: fixed;
     top: 20px;
     right: 20px;
-    background-color: rgba(255, 0, 0, 0.9);
-    color: white;
     padding: 10px 20px;
+    background-color: #b8d672;
+    color: white;
     border-radius: 5px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-    font-size: 16px;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+    z-index: 1000;
 }
 
-.hidden {
-    display: none;
-}
-
-.show {
+.notification.show {
     display: block;
-    opacity: 1;
 }
+
 
 #user-info {
     position: fixed;
@@ -130,6 +125,7 @@ input[type="text"], input[type="file"] {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-bottom: 10px;
 }
 
 #miFoto {
@@ -147,3 +143,148 @@ input[type="text"], input[type="file"] {
     font-style: italic;
     
 }
+
+#usuarios {
+    background-color: #e0e0e0;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#lista-usuarios {
+    list-style: none;
+    padding: 0;
+}
+
+#lista-usuarios li {
+    padding: 5px;
+    background-color: #d1d1d1;
+    margin: 5px 0;
+    border-radius: 3px;
+}
+
+
+#chat-publico {
+    display: none; /* Oculto por defecto */
+}
+
+#chat-publico.visible {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 50px);
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.mensajes-container {
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    height: 100vh; /* Hace que ocupe toda la altura de la pantalla */
+    width: 100%;
+}
+
+#mensajes {
+    width: 100%; /* Ocupa todo el ancho disponible */
+    max-width: 600px; /* Ajusta el tamaño máximo */
+    margin: 0 auto; /* Centra horizontalmente */
+    padding: 0;
+    list-style-type: none;
+}
+#chat-publico li {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    word-wrap: break-word;
+    box-sizing: border-box; /* Incluye padding en el ancho total */
+}
+
+#chat-publico li img {
+    max-width: 100%;
+    height: auto;
+}
+
+#chat-publico .input-container {
+    display: flex;
+    padding: 10px;
+    background-color: #f0f0f0;
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    box-sizing: border-box; /* Incluye padding en el ancho total */
+}
+
+#chat-publico .input-container input[type="text"] {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+#chat-publico .input-container button {
+    margin-left: 10px;
+}
+
+#inputArchivos {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+
+input[type="file"] {
+    position: relative;
+  }
+  
+  input[type="file"]::file-selector-button {
+    width: 50px;
+    color: transparent;
+  }
+  
+  /* Faked label styles and icon */
+  input[type="file"]::before {
+    position: absolute;
+    pointer-events: none;
+    top: 10px;
+    left: 16px;
+    height: 20px;
+    width: 20px;
+    content: "";
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230964B0'%3E%3Cpath d='M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5-5 5z'/%3E%3C/svg%3E");
+  }
+  
+  input[type="file"]::after {
+    position: absolute;
+    pointer-events: none;
+    top: 11px;
+    left: 40px;
+    color: #09b04f;
+    content: "";
+  }
+  
+  /* ------- From Step 1 ------- */
+  
+  /* file upload button */
+  input[type="file"]::file-selector-button {
+    border-radius: 4px;
+    padding: 0 16px;
+    height: 40px;
+    cursor: pointer;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.16);
+    box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.05);
+    margin-right: 16px;
+    transition: background-color 200ms;
+  }
+  
+  /* file upload button hover state */
+  input[type="file"]::file-selector-button:hover {
+    background-color: #f3f4f6;
+  }
+  
+  /* file upload button active state */
+  input[type="file"]::file-selector-button:active {
+    background-color: #e5e7eb;
+  }
+  

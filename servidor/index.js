@@ -32,7 +32,7 @@ app.post('/upload', (req, res) => {
       return res.status(500).json({ error: 'Error al subir el archivo.' });
     }
 
-    const file = files.file[0]; // formidable v3 almacena archivos como arrays
+    const file = files.file[0]; 
     if (!file || !file.originalFilename) {
       console.error('No se encontró el archivo o no tiene nombre.');
       return res.status(400).json({ error: 'No se seleccionó ningún archivo.' });
@@ -44,7 +44,6 @@ app.post('/upload', (req, res) => {
     let newPath = path.join(imgDir, fileName);
     let counter = 1;
 
-    // Verificar si el archivo ya existe y agregar un sufijo
     while (fs.existsSync(newPath)) {
       fileName = `${baseName}_${counter}${fileExtension}`;
       newPath = path.join(imgDir, fileName);
@@ -60,15 +59,11 @@ app.post('/upload', (req, res) => {
       const imageUrl = `/img/${fileName}`;
       console.log(`Imagen subida: ${imageUrl}`);
 
-      // Enviar la URL de la imagen al cliente
       res.json({ imageUrl, fileName });
-      io.emit('imagen', imageUrl);
+      //io.emit('imagen', imageUrl);
     });
   });
 });
-
-
-
 
 const usuariosConectados = {};
 
@@ -80,8 +75,8 @@ io.on('connection', (socket) => {
   socket.on('mensaje', (datos) => {
     io.emit('mensaje', datos);
   });
-  socket.on('imagen', (datos) => {
-    io.emit('imagen', datos);
+  socket.on('imagen', (imageUrl) => {
+    io.emit('imagen', imageUrl);
   });
   socket.on('registroUsuario', (usuario) => {
     if (usuariosConectados[usuario.username]) {
