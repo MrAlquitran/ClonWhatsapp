@@ -60,7 +60,6 @@ app.post('/upload', (req, res) => {
       console.log(`Imagen subida: ${imageUrl}`);
 
       res.json({ imageUrl, fileName });
-      //io.emit('imagen', imageUrl);
     });
   });
 });

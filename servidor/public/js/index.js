@@ -195,7 +195,6 @@ function initialize() {
       return;
     }
 
-    // Emitimos el evento al servidor con la URL completa de la imagen
     socket.emit('imagen', data.imageUrl);
   })
   .catch(error => showNotification("Error subiendo imagen: " + error.message));

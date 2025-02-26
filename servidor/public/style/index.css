@@ -166,7 +166,7 @@ input[type="text"], input[type="file"] {
 
 
 #chat-publico {
-    display: none; /* Oculto por defecto */
+    display: none; 
 }
 
 #chat-publico.visible {
@@ -180,16 +180,16 @@ input[type="text"], input[type="file"] {
 
 .mensajes-container {
     display: flex;
-    justify-content: center; /* Centra horizontalmente */
-    align-items: center; /* Centra verticalmente */
-    height: 100vh; /* Hace que ocupe toda la altura de la pantalla */
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
     width: 100%;
 }
 
 #mensajes {
-    width: 100%; /* Ocupa todo el ancho disponible */
-    max-width: 600px; /* Ajusta el tamaño máximo */
-    margin: 0 auto; /* Centra horizontalmente */
+    width: 100%; 
+    max-width: 600px; 
+    margin: 0 auto; 
     padding: 0;
     list-style-type: none;
 }
@@ -200,7 +200,7 @@ input[type="text"], input[type="file"] {
     background-color: #f1f1f1;
     border-radius: 5px;
     word-wrap: break-word;
-    box-sizing: border-box; /* Incluye padding en el ancho total */
+    box-sizing: border-box;
 }
 
 #chat-publico li img {
@@ -215,7 +215,7 @@ input[type="text"], input[type="file"] {
     position: sticky;
     bottom: 0;
     width: 100%;
-    box-sizing: border-box; /* Incluye padding en el ancho total */
+    box-sizing: border-box; 
 }
 
 #chat-publico .input-container input[type="text"] {
@@ -242,7 +242,6 @@ input[type="file"] {
     color: transparent;
   }
   
-  /* Faked label styles and icon */
   input[type="file"]::before {
     position: absolute;
     pointer-events: none;
@@ -262,10 +261,7 @@ input[type="file"] {
     color: #09b04f;
     content: "";
   }
-  
-  /* ------- From Step 1 ------- */
-  
-  /* file upload button */
+    
   input[type="file"]::file-selector-button {
     border-radius: 4px;
     padding: 0 16px;
@@ -278,12 +274,10 @@ input[type="file"] {
     transition: background-color 200ms;
   }
   
-  /* file upload button hover state */
   input[type="file"]::file-selector-button:hover {
     background-color: #f3f4f6;
   }
   
-  /* file upload button active state */
   input[type="file"]::file-selector-button:active {
     background-color: #e5e7eb;
   }
